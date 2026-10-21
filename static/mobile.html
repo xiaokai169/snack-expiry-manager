@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f97316">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="description" content="零食店效期管家移动版：拍照识别、临期预警、库存管理。">
+  <title>零食效期管家 · 移动版</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/mobile.css">
+</head>
+<body>
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-snack" viewBox="0 0 24 24">
+      <path d="M7 3.5h10l1.4 16.2a1.5 1.5 0 0 1-1.5 1.6H7.1a1.5 1.5 0 0 1-1.5-1.6L7 3.5Z"/>
+      <path d="M7.4 8.2h9.2M7.8 12.6h8.4M8.1 17h7.8"/>
+      <path d="M9 3.5V2.2M15 3.5V2.2"/>
+    </symbol>
+    <symbol id="i-home" viewBox="0 0 24 24">
+      <path d="M4 10.5 12 3.5l8 7V20a1.5 1.5 0 0 1-1.5 1.5H5.5A1.5 1.5 0 0 1 4 20v-9.5Z"/>
+      <path d="M9.5 21v-6h5v6"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24">
+      <path d="M4 8.5h3l1.4-2.2a1 1 0 0 1 .9-.5h5.4a1 1 0 0 1 .9.5L17 8.5h3a1.5 1.5 0 0 1 1.5 1.5v7.5A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5V10A1.5 1.5 0 0 1 4 8.5Z"/>
+      <circle cx="12" cy="13.5" r="3.2"/>
+    </symbol>
+    <symbol id="i-table" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="16" rx="2"/>
+      <path d="M3 9h18M3 14.5h18M9 9v11M15 9v11"/>
+    </symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24">
+      <path d="M12 16V4M7.5 8.5 12 4l4.5 4.5"/>
+      <path d="M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <path d="M12 4v12M7.5 11.5 12 16l4.5-4.5"/>
+      <path d="M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3"/>
+    </symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24">
+      <path d="M12 3.8 21 19.5a1.2 1.2 0 0 1-1 1.5H4a1.2 1.2 0 0 1-1-1.5L12 3.8Z"/>
+      <path d="M12 9v4.8M12 17.2v.1"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12.5 5 5L19.5 7"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24">
+      <path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z"/>
+      <path d="m3.8 7.6 8.2 4.4 8.2-4.4M12 21v-9"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+    </symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="4.5" rx="1"/>
+      <path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5M10 12h4"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 20V4M4 20h16"/>
+      <rect x="7" y="12" width="3" height="5" rx=".6"/>
+      <rect x="12.5" y="8" width="3" height="9" rx=".6"/>
+      <rect x="18" y="5" width="3" height="12" rx=".6"/>
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.6A7.6 7.6 0 0 0 7 6.6l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.4-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2.6-1.5l2.4 1 2-3.4-2-1.5Z"/>
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+      <path d="m14.5 5.5 4 4M4 20l1-5L16.8 3.2a1.4 1.4 0 0 1 2 0l2 2a1.4 1.4 0 0 1 0 2L9 19l-5 1Z"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M4.5 6.5h15M9 6.5V4.2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2.3"/>
+      <path d="M6.5 6.5 7.4 20a1 1 0 0 0 1 .9h7.2a1 1 0 0 0 1-.9l.9-13.5M10 10.5v6.5M14 10.5v6.5"/>
+    </symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24">
+      <path d="M4 10a8 8 0 1 1 2.3 6.4"/>
+      <path d="M4 4.5V10h5.5"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4 4"/>
+    </symbol>
+    <symbol id="i-image" viewBox="0 0 24 24">
+      <rect x="3" y="4.5" width="18" height="15" rx="2"/>
+      <circle cx="8.5" cy="10" r="1.6"/>
+      <path d="m5 17 4.5-4.5 3.5 3.5 2.5-2.5 3.5 3.5"/>
+    </symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24">
+      <path d="M20 10a8 8 0 1 0-2.3 6.4"/><path d="M20 4.5V10h-5.5"/>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2"/>
+      <path d="M3.5 9.5h17M8 3.5V6.5M16 3.5V6.5"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+      <path d="M12 3.5 13.8 9l5.7 1.8-5.7 1.9L12 18.3l-1.8-5.6L4.5 10.8 10.2 9 12 3.5Z"/>
+    </symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24">
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2.4"/>
+      <path d="M10 5.2h4M11 18.6h2"/>
+    </symbol>
+  </svg>
+
+  <header class="m-header">
+    <div class="m-header-inner">
+      <a class="m-brand" href="#home" aria-label="首页">
+        <span class="m-logo"><svg class="icon"><use href="#i-snack"></use></svg></span>
+        <span class="m-brand-text">
+          <strong>零食效期管家</strong>
+          <small>移动版</small>
+        </span>
+      </a>
+      <div class="m-header-side">
+        <button class="m-ocr-status" id="mOcrStatus" type="button" data-action="check-ocr" aria-label="识别服务状态">
+          <span class="status-dot"></span><span class="m-status-text">检测中</span>
+        </button>
+        <a class="m-pc-link" href="/?pc=1#home">电脑版</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="mobileApp" class="m-main" tabindex="-1"></main>
+
+  <nav class="m-bottom-nav" id="mNav" aria-label="底部导航">
+    <button type="button" data-mtab="home" class="active">
+      <svg class="icon"><use href="#i-home"></use></svg><span>首页</span>
+    </button>
+    <button type="button" data-mtab="products">
+      <svg class="icon"><use href="#i-box"></use></svg><span>商品</span>
+    </button>
+    <button type="button" class="m-nav-add" data-action="add-product" aria-label="新增商品">
+      <span class="m-nav-add-icon"><svg class="icon"><use href="#i-plus"></use></svg></span><span>新增</span>
+    </button>
+    <button type="button" data-mtab="stats">
+      <svg class="icon"><use href="#i-chart"></use></svg><span>统计</span>
+    </button>
+    <button type="button" data-mtab="settings">
+      <svg class="icon"><use href="#i-settings"></use></svg><span>设置</span>
+    </button>
+  </nav>
+
+  <!-- 拍照 / 相册隐藏输入：移动端拍照使用系统相机，不依赖 HTTPS -->
+  <input type="file" id="mCameraInput" accept="image/*" capture="environment" hidden>
+  <input type="file" id="mGalleryInput" accept="image/*" hidden>
+
+  <!-- ========== 商品表单 ========== -->
+  <div class="modal" id="productSheet" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog m-sheet" role="dialog" aria-modal="true" aria-labelledby="mProductTitle">
+      <div class="m-sheet-head">
+        <div>
+          <h2 id="mProductTitle">新增商品</h2>
+          <p id="mProductSub">填写基础信息，效期自动计算</p>
+        </div>
+        <button type="button" class="m-icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <form id="mobileProductForm" autocomplete="off" novalidate>
+        <div class="m-sheet-body">
+          <input type="hidden" id="mFId">
+          <label class="m-field">
+            <span>商品名称 <em>*</em></span>
+            <input id="mFName" type="text" maxlength="60" placeholder="例如：乐事薯片（黄瓜味）" required>
+          </label>
+          <div class="m-form-row">
+            <label class="m-field">
+              <span>生产日期 <em>*</em></span>
+              <input id="mFDate" type="date" required>
+            </label>
+            <label class="m-field">
+              <span>保质期（月） <em>*</em></span>
+              <input id="mFMonths" type="number" min="0.5" max="240" step="0.5" inputmode="decimal" placeholder="6" required>
+            </label>
+          </div>
+          <div class="m-form-row">
+            <label class="m-field">
+              <span>数量 <em>*</em></span>
+              <input id="mFQuantity" type="number" min="0" max="999999" step="1" inputmode="numeric" placeholder="10" required>
+            </label>
+            <label class="m-field">
+              <span>是否下架</span>
+              <select id="mFStatus">
+                <option value="未下架">未下架 · 预警</option>
+                <option value="无需下架">无需下架 · 不预警</option>
+                <option value="已下架">已下架</option>
+              </select>
+            </label>
+          </div>
+          <label class="m-field">
+            <span>备注</span>
+            <input id="mFRemark" type="text" maxlength="200" placeholder="选填，如：货架第二层 / 补货">
+          </label>
+
+          <div class="m-calc" id="mCalcPreview">
+            <div><span>保质期（天）</span><strong data-mcalc="days">—</strong></div>
+            <div><span>到期日</span><strong data-mcalc="expiry">—</strong></div>
+            <div><span>临期下架日</span><strong data-mcalc="warning">—</strong></div>
+            <div><span>提前下架</span><strong data-mcalc="advance">—</strong></div>
+          </div>
+
+          <div class="m-inline-note" id="mFormNote" hidden></div>
+
+          <details class="m-raw" id="mRawBox" hidden>
+            <summary>查看识别原文</summary>
+            <pre id="mRawText"></pre>
+          </details>
+        </div>
+        <div class="m-sheet-foot">
+          <button type="button" class="m-btn ghost" data-close-modal>取消</button>
+          <button type="submit" class="m-btn primary" id="mSaveProduct">保存商品</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== 包装拍照识别 ========== -->
+  <div class="modal" id="packageSheet" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog m-sheet" role="dialog" aria-modal="true" aria-labelledby="pkgTitle">
+      <div class="m-sheet-head">
+        <div>
+          <h2 id="pkgTitle">拍照识别包装</h2>
+          <p>识别商品名称、生产日期、保质期</p>
+        </div>
+        <button type="button" class="m-icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="m-sheet-body">
+        <div class="m-pick-grid">
+          <button type="button" class="m-pick-card camera" data-action="pick-camera" data-target="package">
+            <span class="m-pick-icon"><svg class="icon"><use href="#i-camera"></use></svg></span>
+            <strong>拍照识别</strong>
+            <small>打开手机相机拍摄包装</small>
+          </button>
+          <button type="button" class="m-pick-card" data-action="pick-gallery" data-target="package">
+            <span class="m-pick-icon"><svg class="icon"><use href="#i-image"></use></svg></span>
+            <strong>从相册选择</strong>
+            <small>选择已有的包装照片</small>
+          </button>
+        </div>
+
+        <div class="m-image-box" id="pkgPreviewBox" hidden>
+          <img id="pkgPreview" alt="待识别的包装照片">
+          <div class="m-image-tools">
+            <button type="button" data-action="rotate-image" data-target="package"><svg class="icon"><use href="#i-rotate"></use></svg>旋转</button>
+            <button type="button" data-action="clear-image" data-target="package">重新选择</button>
+          </div>
+        </div>
+
+        <div class="m-progress" id="pkgProgress" hidden>
+          <div class="m-progress-bar"><span id="pkgProgressBar"></span></div>
+          <p id="pkgProgressText">正在本机识别，请稍候…</p>
+        </div>
+        <div class="m-inline-note error" id="pkgError" hidden></div>
+        <p class="m-hint center">照片只在本机识别，不会上传互联网</p>
+      </div>
+      <div class="m-sheet-foot">
+        <button type="button" class="m-btn ghost" data-close-modal>取消</button>
+        <button type="button" class="m-btn primary" id="pkgRecognizeBtn" data-action="recognize-package" disabled>
+          <svg class="icon"><use href="#i-spark"></use></svg>开始识别
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 表格识别 ========== -->
+  <div class="modal" id="tableSheet" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog m-sheet tall" role="dialog" aria-modal="true" aria-labelledby="tblTitle">
+      <div class="m-sheet-head">
+        <div>
+          <h2 id="tblTitle">识别手写表格</h2>
+          <p>拍照或选图，识别后可逐行核对</p>
+        </div>
+        <button type="button" class="m-icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="m-sheet-body">
+        <div class="m-pick-grid">
+          <button type="button" class="m-pick-card camera" data-action="pick-camera" data-target="table">
+            <span class="m-pick-icon"><svg class="icon"><use href="#i-camera"></use></svg></span>
+            <strong>拍照识别</strong>
+            <small>直接拍摄纸质表格</small>
+          </button>
+          <button type="button" class="m-pick-card" data-action="pick-gallery" data-target="table">
+            <span class="m-pick-icon"><svg class="icon"><use href="#i-image"></use></svg></span>
+            <strong>从相册选择</strong>
+            <small>选择已有的表格照片</small>
+          </button>
+        </div>
+
+        <div class="m-image-box" id="tblPreviewBox" hidden>
+          <img id="tblPreview" alt="待识别的表格照片">
+          <div class="m-image-tools">
+            <button type="button" data-action="rotate-image" data-target="table"><svg class="icon"><use href="#i-rotate"></use></svg>旋转</button>
+            <button type="button" data-action="clear-image" data-target="table">重新选择</button>
+          </div>
+        </div>
+
+        <div class="m-progress" id="tblProgress" hidden>
+          <div class="m-progress-bar"><span id="tblProgressBar"></span></div>
+          <p id="tblProgressText">正在识别表格，请稍候…</p>
+        </div>
+        <div class="m-inline-note error" id="tblError" hidden></div>
+
+        <div class="m-table-result" id="tblResultBox" hidden>
+          <div class="m-result-head">
+            <div><strong>识别结果</strong><span id="tblSummary"></span></div>
+            <button type="button" class="m-btn tiny ghost" data-action="table-add-row">
+              <svg class="icon"><use href="#i-plus"></use></svg>添加行
+            </button>
+          </div>
+          <div id="tblRows" class="m-ocr-rows"></div>
+          <details class="m-raw">
+            <summary>查看识别原文</summary>
+            <pre id="tblRawText"></pre>
+          </details>
+        </div>
+      </div>
+      <div class="m-sheet-foot">
+        <button type="button" class="m-btn ghost" data-close-modal>取消</button>
+        <button type="button" class="m-btn primary" id="tblImportBtn" data-action="import-table" hidden>导入表格数据</button>
+        <button type="button" class="m-btn primary" id="tblRecognizeBtn" data-action="recognize-table" disabled>
+          <svg class="icon"><use href="#i-spark"></use></svg>开始识别
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Excel 导入 ========== -->
+  <div class="modal" id="importSheet" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog m-sheet" role="dialog" aria-modal="true" aria-labelledby="impTitle">
+      <div class="m-sheet-head">
+        <div>
+          <h2 id="impTitle">导入 Excel</h2>
+          <p>支持系统导出的文件或含对应表头的表格</p>
+        </div>
+        <button type="button" class="m-icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="m-sheet-body">
+        <label class="m-file-drop">
+          <input type="file" id="mImportFile" accept=".xlsx,.xls,.csv" hidden>
+          <span class="m-file-icon"><svg class="icon"><use href="#i-upload"></use></svg></span>
+          <strong>点击选择 Excel 文件</strong>
+          <p>.xlsx / .xls / .csv</p>
+        </label>
+
+        <div class="m-import-preview" id="mImportPreview" hidden>
+          <div class="m-inline-note" id="mImportSummary"></div>
+          <div id="mImportList" class="m-import-list"></div>
+          <div class="m-inline-note warn" id="mImportWarnings" hidden></div>
+          <div class="m-import-options">
+            <label class="m-radio-row">
+              <input type="radio" name="mImportMode" value="merge" checked>
+              <span><strong>追加导入</strong><small>保留现有商品</small></span>
+            </label>
+            <label class="m-radio-row danger">
+              <input type="radio" name="mImportMode" value="replace">
+              <span><strong>覆盖导入</strong><small>清空现有商品后再导入</small></span>
+            </label>
+            <label class="m-check-row" id="mImportTiersRow" hidden>
+              <input type="checkbox" id="mImportTiers" checked>
+              <span>同时恢复文件中的预警档位设置</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="m-inline-note error" id="mImportError" hidden></div>
+        <button type="button" class="m-text-link" data-action="download-template">没有模板？下载导入模板</button>
+      </div>
+      <div class="m-sheet-foot">
+        <button type="button" class="m-btn ghost" data-close-modal>取消</button>
+        <button type="button" class="m-btn primary" id="mImportConfirmBtn" data-action="confirm-import" hidden>确认导入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 通用确认框 ========== -->
+  <div class="modal" id="confirmModal" hidden>
+    <div class="modal-backdrop" data-action="confirm-cancel"></div>
+    <div class="modal-dialog m-sheet m-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <div class="m-sheet-head">
+        <div>
+          <h2 id="confirmTitle">确认操作</h2>
+          <p id="confirmMessage" class="m-confirm-message"></p>
+        </div>
+        <button type="button" class="m-icon-btn" data-action="confirm-cancel" aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="m-sheet-foot">
+        <button type="button" class="m-btn ghost" data-action="confirm-cancel">取消</button>
+        <button type="button" class="m-btn primary" id="confirmOkBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="/static/vendor/xlsx.full.min.js"></script>
+  <script type="module" src="/static/js/mobile-app.js"></script>
+</body>
+</html>

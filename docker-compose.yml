@@ -1,0 +1,27 @@
+services:
+  snack-expiry:
+    build:
+      context: .
+      args:
+        # 国内服务器可改成 https://pypi.tuna.tsinghua.edu.cn/simple
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    image: snack-expiry-manager:latest
+    container_name: snack-expiry
+    restart: unless-stopped
+    # 只绑定本机，由宿主机上的 Nginx 反向代理并加 HTTPS / 登录认证
+    ports:
+      - "127.0.0.1:8765:8765"
+    environment:
+      OMP_NUM_THREADS: "4"
+    volumes:
+      # PaddleOCR 模型缓存，首次识别下载后持久保存
+      - paddlex_models:/root/.paddlex
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,urllib.request; d=json.load(urllib.request.urlopen('http://127.0.0.1:8765/api/health', timeout=8)); raise SystemExit(0 if d.get('ocr_available') else 1)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+
+volumes:
+  paddlex_models:

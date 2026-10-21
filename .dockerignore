@@ -1,0 +1,12 @@
+.git
+.gitignore
+.claude
+.venv
+venv
+__pycache__
+*.pyc
+.uploads
+.playwright-mcp
+*.md
+deploy
+零食店效期管理产品需求文档_PRD.md

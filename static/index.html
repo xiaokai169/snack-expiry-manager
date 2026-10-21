@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>零食效期管家</title>
+  <meta name="description" content="零食店商品效期管理：入库登记、效期自动计算、临期预警、拍照识别、数据统计。">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <script>
+    // 手机访问时自动进入移动端页面；加 ?pc=1 可强制查看电脑版
+    (function () {
+      try {
+        var ua = navigator.userAgent || '';
+        var isIPad = /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1;
+        var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(ua) || isIPad;
+        var forcePc = new URLSearchParams(location.search).has('pc');
+        if (isMobile && !forcePc) location.replace('/mobile' + location.hash);
+      } catch (error) { /* ignore */ }
+    })();
+  </script>
+</head>
+<body>
+  <!-- ========== SVG 图标库 ========== -->
+  <svg class="svg-sprite" aria-hidden="true">
+    <symbol id="i-snack" viewBox="0 0 24 24">
+      <path d="M7 3.5h10l1.4 16.2a1.5 1.5 0 0 1-1.5 1.6H7.1a1.5 1.5 0 0 1-1.5-1.6L7 3.5Z"/>
+      <path d="M7.4 8.2h9.2M7.8 12.6h8.4M8.1 17h7.8"/>
+      <path d="M9 3.5V2.2M15 3.5V2.2"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24">
+      <path d="M4 8.5h3l1.4-2.2a1 1 0 0 1 .9-.5h5.4a1 1 0 0 1 .9.5L17 8.5h3a1.5 1.5 0 0 1 1.5 1.5v7.5A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5V10A1.5 1.5 0 0 1 4 8.5Z"/>
+      <circle cx="12" cy="13.5" r="3.2"/>
+    </symbol>
+    <symbol id="i-table" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="16" rx="2"/>
+      <path d="M3 9h18M3 14.5h18M9 9v11M15 9v11"/>
+    </symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24">
+      <path d="M12 16V4M7.5 8.5 12 4l4.5 4.5"/>
+      <path d="M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3"/>
+    </symbol>
+    <symbol id="i-download" viewBox="0 0 24 24">
+      <path d="M12 4v12M7.5 11.5 12 16l4.5-4.5"/>
+      <path d="M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3"/>
+    </symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24">
+      <path d="M12 3.8 21 19.5a1.2 1.2 0 0 1-1 1.5H4a1.2 1.2 0 0 1-1-1.5L12 3.8Z"/>
+      <path d="M12 9v4.8M12 17.2v.1"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12.5 5 5L19.5 7"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24">
+      <path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z"/>
+      <path d="m3.8 7.6 8.2 4.4 8.2-4.4M12 21v-9"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+    </symbol>
+    <symbol id="i-archive" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="4.5" rx="1"/>
+      <path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5M10 12h4"/>
+    </symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24">
+      <path d="M4 20V4M4 20h16"/>
+      <rect x="7" y="12" width="3" height="5" rx=".6"/>
+      <rect x="12.5" y="8" width="3" height="9" rx=".6"/>
+      <rect x="18" y="5" width="3" height="12" rx=".6"/>
+    </symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.6A7.6 7.6 0 0 0 7 6.6l-2.4-1-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.4-1a7.6 7.6 0 0 0 2.6 1.5l.4 2.6h4l.4-2.6a7.6 7.6 0 0 0 2.6-1.5l2.4 1 2-3.4-2-1.5Z"/>
+    </symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24">
+      <path d="m14.5 5.5 4 4M4 20l1-5L16.8 3.2a1.4 1.4 0 0 1 2 0l2 2a1.4 1.4 0 0 1 0 2L9 19l-5 1Z"/>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <path d="M4.5 6.5h15M9 6.5V4.2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2.3"/>
+      <path d="M6.5 6.5 7.4 20a1 1 0 0 0 1 .9h7.2a1 1 0 0 0 1-.9l.9-13.5M10 10.5v6.5M14 10.5v6.5"/>
+    </symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24">
+      <path d="M4 10a8 8 0 1 1 2.3 6.4"/>
+      <path d="M4 4.5V10h5.5"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.5 15.5 4 4"/>
+    </symbol>
+    <symbol id="i-image" viewBox="0 0 24 24">
+      <rect x="3" y="4.5" width="18" height="15" rx="2"/>
+      <circle cx="8.5" cy="10" r="1.6"/>
+      <path d="m5 17 4.5-4.5 3.5 3.5 2.5-2.5 3.5 3.5"/>
+    </symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24">
+      <path d="M20 10a8 8 0 1 0-2.3 6.4"/><path d="M20 4.5V10h-5.5"/>
+    </symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24">
+      <rect x="3.5" y="5" width="17" height="15.5" rx="2"/>
+      <path d="M3.5 9.5h17M8 3.5V6.5M16 3.5V6.5"/>
+    </symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.1"/>
+    </symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24">
+      <path d="M12 3.5 13.8 9l5.7 1.8-5.7 1.9L12 18.3l-1.8-5.6L4.5 10.8 10.2 9 12 3.5Z"/>
+    </symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24">
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2.4"/>
+      <path d="M10 5.2h4M11 18.6h2"/>
+    </symbol>
+  </svg>
+
+  <!-- ========== 顶部导航 ========== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="#home" aria-label="零食效期管家首页">
+        <span class="brand-logo"><svg class="icon"><use href="#i-snack"></use></svg></span>
+        <span class="brand-text">
+          <strong>零食效期管家</strong>
+          <small>入库 · 预警 · 下架，一站搞定</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="主导航">
+        <a href="#home" data-tab="home">首页预警<span class="nav-badge" id="navWarningBadge" hidden></span></a>
+        <a href="#onsale" data-tab="onsale">在售商品</a>
+        <a href="#offshelf" data-tab="offshelf">已下架</a>
+        <a href="#stats" data-tab="stats">数据统计</a>
+        <a href="#settings" data-tab="settings">设置</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="ocr-status" id="ocrStatus" type="button" data-action="check-ocr" title="点击检测 OCR 服务">
+          <span class="status-dot"></span><span class="status-text">识别服务检测中</span>
+        </button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="import-excel">
+          <svg class="icon"><use href="#i-upload"></use></svg>导入
+        </button>
+        <button class="btn btn-ghost btn-sm" type="button" data-action="export-excel">
+          <svg class="icon"><use href="#i-download"></use></svg>导出
+        </button>
+        <button class="btn btn-primary" type="button" data-action="add-product">
+          <svg class="icon"><use href="#i-plus"></use></svg>新增商品
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="app-main" tabindex="-1"></main>
+
+  <footer class="app-footer">
+    <span>数据仅保存在本机浏览器 · 建议每周导出一次备份</span>
+    <span class="footer-sep"></span>
+    <span>零食效期管家 v1.0</span>
+    <span class="footer-sep"></span>
+    <a href="/mobile" target="_blank" rel="noopener" style="color:var(--brand-strong)">移动端页面</a>
+  </footer>
+
+  <!-- ========== 商品表单弹窗 ========== -->
+  <div class="modal" id="productModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="productModalTitle">新增商品</h2>
+          <p class="modal-sub" id="productModalSub">填写基础信息，效期会自动计算</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <form id="productForm" autocomplete="off" novalidate>
+        <div class="modal-body">
+          <input type="hidden" id="fId">
+          <div class="form-grid">
+            <label class="field span-2">
+              <span>商品名称 <em>*</em></span>
+              <input id="fName" type="text" maxlength="60" placeholder="例如：乐事薯片（黄瓜味）" required>
+            </label>
+            <label class="field">
+              <span>生产日期 <em>*</em></span>
+              <input id="fProductionDate" type="date" required>
+            </label>
+            <label class="field">
+              <span>保质期（月） <em>*</em></span>
+              <input id="fMonths" type="number" min="0.5" max="240" step="0.5" inputmode="decimal" placeholder="例如：6" required>
+            </label>
+            <label class="field">
+              <span>数量 <em>*</em></span>
+              <input id="fQuantity" type="number" min="0" max="999999" step="1" inputmode="numeric" placeholder="例如：10" required>
+            </label>
+            <label class="field">
+              <span>是否下架</span>
+              <select id="fStatus">
+                <option value="未下架">未下架（在售，参与预警）</option>
+                <option value="无需下架">无需下架（在售，不预警）</option>
+                <option value="已下架">已下架</option>
+              </select>
+            </label>
+            <label class="field span-2">
+              <span>备注</span>
+              <input id="fRemark" type="text" maxlength="200" placeholder="选填，如：货架第二层 / 补货商品">
+            </label>
+          </div>
+
+          <div class="calc-preview" id="calcPreview">
+            <div><span>保质期（天）</span><strong data-calc="days">—</strong></div>
+            <div><span>到期日</span><strong data-calc="expiry">—</strong></div>
+            <div><span>临期下架日</span><strong data-calc="warning">—</strong></div>
+            <div><span>提前下架</span><strong data-calc="advance">—</strong></div>
+          </div>
+
+          <div class="inline-note" id="productFormNote" hidden></div>
+
+          <details class="raw-ocr" id="rawOcrBox" hidden>
+            <summary>查看识别原文</summary>
+            <pre id="rawOcrText"></pre>
+          </details>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close-modal>取消</button>
+          <button type="submit" class="btn btn-primary" id="productSubmitBtn">保存商品</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== 包装拍照识别弹窗 ========== -->
+  <div class="modal" id="ocrModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog modal-lg" role="dialog" aria-modal="true" aria-labelledby="ocrModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="ocrModalTitle">拍照识别包装</h2>
+          <p class="modal-sub">识别商品名称、生产日期、保质期，核对后自动填入表单</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ol class="step-list">
+          <li class="active"><span>1</span>选择照片</li>
+          <li><span>2</span>识别文字</li>
+          <li><span>3</span>核对保存</li>
+        </ol>
+
+        <div class="image-picker" id="ocrPicker" tabindex="0">
+          <input type="file" accept="image/*" id="ocrFile" hidden>
+          <div class="image-empty" data-pick-image="ocr">
+            <span class="image-empty-icon"><svg class="icon"><use href="#i-image"></use></svg></span>
+            <strong>点击选择图片，或拖拽到这里</strong>
+            <p>拍包装正面的生产日期、保质期区域，识别更准确</p>
+          </div>
+          <div class="image-preview" hidden>
+            <img id="ocrPreview" alt="待识别的包装照片">
+            <div class="image-tools">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="rotate-image" data-picker="ocr">
+                <svg class="icon"><use href="#i-rotate"></use></svg>旋转
+              </button>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="clear-image" data-picker="ocr">
+                重新选择
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ocr-source-row">
+          <button type="button" class="btn btn-ghost" data-action="open-camera" data-target="ocr">
+            <svg class="icon"><use href="#i-camera"></use></svg>打开摄像头拍照
+          </button>
+          <span class="hint">照片只在本机识别，不会上传云端</span>
+        </div>
+
+        <div class="progress-box" id="ocrProgress" hidden>
+          <div class="progress-bar"><span id="ocrProgressBar"></span></div>
+          <p id="ocrProgressText">正在识别，请稍候…</p>
+        </div>
+        <div class="inline-note error" id="ocrError" hidden></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close-modal>取消</button>
+        <button type="button" class="btn btn-primary" id="ocrRecognizeBtn" data-action="recognize-package" disabled>
+          <svg class="icon"><use href="#i-spark"></use></svg>开始识别
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 手写表格识别弹窗 ========== -->
+  <div class="modal" id="tableModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog modal-xl" role="dialog" aria-modal="true" aria-labelledby="tableModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="tableModalTitle">识别手写表格</h2>
+          <p class="modal-sub">上传手写/打印的效期表格照片，识别后可在预览表中逐行核对</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="image-picker compact" id="tablePicker" tabindex="0">
+          <input type="file" accept="image/*" id="tableFile" hidden>
+          <div class="image-empty" data-pick-image="table">
+            <span class="image-empty-icon"><svg class="icon"><use href="#i-table"></use></svg></span>
+            <strong>点击选择表格照片，或拖拽到这里</strong>
+            <p>尽量正对表格拍摄，保证表头和字迹清晰</p>
+          </div>
+          <div class="image-preview" hidden>
+            <img id="tablePreview" alt="待识别的手写表格">
+            <div class="image-tools">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="rotate-image" data-picker="table">
+                <svg class="icon"><use href="#i-rotate"></use></svg>旋转
+              </button>
+              <button type="button" class="btn btn-sm btn-ghost" data-action="clear-image" data-picker="table">
+                重新选择
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ocr-source-row">
+          <button type="button" class="btn btn-ghost" data-action="open-camera" data-target="table">
+            <svg class="icon"><use href="#i-camera"></use></svg>打开摄像头拍照
+          </button>
+          <span class="hint">手写识别有误差，请务必核对预览表格</span>
+        </div>
+
+        <div class="progress-box" id="tableProgress" hidden>
+          <div class="progress-bar"><span id="tableProgressBar"></span></div>
+          <p id="tableProgressText">正在识别表格，请稍候…</p>
+        </div>
+        <div class="inline-note error" id="tableError" hidden></div>
+
+        <div class="table-preview-box" id="tableResultBox" hidden>
+          <div class="preview-head">
+            <div>
+              <strong>识别结果</strong>
+              <span class="muted" id="tableResultSummary"></span>
+            </div>
+            <div class="preview-head-actions">
+              <button type="button" class="btn btn-sm btn-ghost" data-action="table-add-row">
+                <svg class="icon"><use href="#i-plus"></use></svg>添加一行
+              </button>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table preview-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>商品名称</th>
+                  <th>生产日期</th>
+                  <th>保质期（月）</th>
+                  <th>数量</th>
+                  <th>备注</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody id="tableResultBody"></tbody>
+            </table>
+          </div>
+          <details class="raw-ocr">
+            <summary>查看识别原文</summary>
+            <pre id="tableRawText"></pre>
+          </details>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close-modal>取消</button>
+        <button type="button" class="btn btn-primary" id="tableImportBtn" data-action="import-table" hidden>导入表格数据</button>
+        <button type="button" class="btn btn-primary" id="tableRecognizeBtn" data-action="recognize-table" disabled>
+          <svg class="icon"><use href="#i-spark"></use></svg>开始识别
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Excel 导入弹窗 ========== -->
+  <div class="modal" id="importModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="importModalTitle">导入 Excel</h2>
+          <p class="modal-sub">支持本系统导出的文件，或包含对应表头的其它表格</p>
+        </div>
+        <button type="button" class="icon-btn" data-close-modal aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="file-drop" id="importDrop">
+          <input type="file" accept=".xlsx,.xls,.csv" id="importFile" hidden>
+          <span class="file-drop-icon"><svg class="icon"><use href="#i-upload"></use></svg></span>
+          <strong>点击选择 Excel 文件</strong>
+          <p>支持 .xlsx / .xls / .csv，建议使用系统导出的模板</p>
+        </label>
+
+        <div class="import-preview" id="importPreview" hidden>
+          <div class="import-summary" id="importSummary"></div>
+          <div class="table-wrap">
+            <table class="data-table preview-table">
+              <thead>
+                <tr><th>商品名称</th><th>生产日期</th><th>保质期（月）</th><th>数量</th><th>状态</th><th>备注</th></tr>
+              </thead>
+              <tbody id="importPreviewBody"></tbody>
+            </table>
+          </div>
+          <div class="inline-note warn" id="importWarnings" hidden></div>
+
+          <div class="import-options">
+            <label class="radio-row">
+              <input type="radio" name="importMode" value="merge" checked>
+              <span><strong>追加导入</strong><small>保留现有商品，把表格中的数据新增进来</small></span>
+            </label>
+            <label class="radio-row danger">
+              <input type="radio" name="importMode" value="replace">
+              <span><strong>覆盖导入</strong><small>清空现有商品后，再导入表格中的数据</small></span>
+            </label>
+            <label class="check-row" id="importTiersRow" hidden>
+              <input type="checkbox" id="importTiers" checked>
+              <span>同时恢复文件中的预警档位设置</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="inline-note error" id="importError" hidden></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close-modal>取消</button>
+        <button type="button" class="btn btn-primary" id="importConfirmBtn" data-action="confirm-import" hidden>确认导入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 摄像头弹窗 ========== -->
+  <div class="modal" id="cameraModal" hidden>
+    <div class="modal-backdrop" data-action="close-camera"></div>
+    <div class="modal-dialog modal-lg" role="dialog" aria-modal="true" aria-labelledby="cameraModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="cameraModalTitle">拍照</h2>
+          <p class="modal-sub">将生产日期 / 表格内容放入取景框，保持画面平稳</p>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-camera" aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body camera-body">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <canvas id="cameraCanvas" hidden></canvas>
+        <div class="inline-note error" id="cameraError" hidden></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-action="close-camera">取消</button>
+        <button type="button" class="btn btn-primary" data-action="capture-photo">
+          <svg class="icon"><use href="#i-camera"></use></svg>拍摄照片
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 通用确认弹窗 ========== -->
+  <div class="modal" id="confirmModal" hidden>
+    <div class="modal-backdrop" data-action="confirm-cancel"></div>
+    <div class="modal-dialog modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <div class="modal-header">
+        <div>
+          <h2 id="confirmTitle">确认操作</h2>
+        </div>
+        <button type="button" class="icon-btn" data-action="confirm-cancel" aria-label="关闭">
+          <svg class="icon"><use href="#i-close"></use></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="confirm-message" id="confirmMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-action="confirm-cancel">取消</button>
+        <button type="button" class="btn btn-primary" id="confirmOkBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script src="/static/vendor/xlsx.full.min.js"></script>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+[Unit]
+Description=Snack Expiry Manager (Web + OCR)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 改成实际运行用户（需要拥有项目目录和 ~/.paddlex 写权限）
+User=snack
+Group=snack
+WorkingDirectory=/opt/snack-expiry-manager
+Environment=PYTHONUNBUFFERED=1
+Environment=OMP_NUM_THREADS=4
+ExecStart=/opt/snack-expiry-manager/.venv/bin/python server.py --host 127.0.0.1 --port 8765 --no-browser
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

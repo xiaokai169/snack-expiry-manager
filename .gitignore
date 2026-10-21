@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.log
+.venv/
+venv/
+.uploads/
+.playwright-mcp/
+.claude/
+.DS_Store
+python-path.txt
+_ocr_test.json
+_*test*.mjs
