@@ -234,7 +234,38 @@ cloudflared tunnel --url http://127.0.0.1:8765
 sudo PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple docker compose build --no-cache
 ```
 
-**2. 容器启动后 /api/health 显示 `ocr_available: false`**  
+**2. 构建时报 `Release file ... is expired`**  
+通常是服务器时间不准，或者 Debian 镜像缓存了过期的 InRelease。先检查时间：
+
+```bash
+date -u
+timedatectl
+```
+
+如果时间不对，开启 NTP 同步：
+
+```bash
+sudo timedatectl set-ntp true
+sudo systemctl restart systemd-timesyncd
+date -u
+```
+
+然后拉取最新代码后重新构建（Dockerfile 已默认切到阿里云 Debian 镜像，并跳过过期校验）：
+
+```bash
+cd /opt/snack-expiry-manager
+sudo git pull
+sudo docker compose build --no-cache
+sudo docker compose up -d
+```
+
+海外服务器可以改用官方源：
+
+```bash
+sudo APT_MIRROR=deb.debian.org docker compose build --no-cache
+```
+
+**3. 容器启动后 /api/health 显示 `ocr_available: false`**  
 看日志：
 
 ```bash
@@ -243,25 +274,25 @@ sudo docker compose logs --tail=200
 
 通常是依赖没有安装完整；可尝试重新构建镜像。
 
-**3. 第一次识别很慢或卡住**  
+**4. 第一次识别很慢或卡住**  
 第一次识别会下载 PaddleOCR 模型（约 200MB），需要服务器能访问模型源。之后会使用 `paddlex_models` 卷中的缓存，通常 1–3 秒出结果。
 
-**4. Nginx 上传图片报 413**  
+**5. Nginx 上传图片报 413**  
 确认配置里有 `client_max_body_size 15m;` 并重新加载 Nginx。
 
-**5. Nginx 识别时 504 超时**  
+**6. Nginx 识别时 504 超时**  
 确认 `proxy_read_timeout 180s;` 已生效；首次下载模型可能更久。
 
-**6. 手机无法访问 / 打不开**  
+**7. 手机无法访问 / 打不开**  
 - 确认域名解析正确；
 - 确认服务器防火墙开放 80/443；
 - 如使用 Cloudflare，确认 Tunnel 在运行；
 - 如使用局域网 IP，确认手机和电脑在同一 Wi-Fi（这是本地使用方式，不是公网部署）。
 
-**7. 数据在哪里？换手机怎么办？**  
+**8. 数据在哪里？换手机怎么办？**  
 数据在每台设备浏览器的 LocalStorage 中，不在服务器上。换设备请用「导出 Excel」→「导入 Excel」迁移。
 
-**8. 需要电脑和手机共享同一份数据**  
+**9. 需要电脑和手机共享同一份数据**  
 当前版本不支持自动同步，需要增加服务端数据接口（SQLite / JSON + 版本号 + 冲突处理）。这是一个独立的开发项，不要误以为放到服务器上就会自动同步。
 
 ---
